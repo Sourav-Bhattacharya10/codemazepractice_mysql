@@ -14,7 +14,7 @@ public static class PersistenceRegistration
 
         services.AddDbContext<CodeMazeContext>(options =>
         {
-            options.UseMySQL(configuration["MySQLConnection:ConnectionString"]);
+            options.UseMySQL(configuration["MySqlSettings:ConnectionString"]);
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace codemazepractice.persistence.Repositories;
 
-public class OwnerRepository: Repository<Owner>
+public class OwnerRepository: Repository<Owner>, IOwnerRepository
 {
     private readonly IMapper _mapper;
     private readonly CodeMazeContext _context;

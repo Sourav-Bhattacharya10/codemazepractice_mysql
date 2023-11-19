@@ -1,5 +1,9 @@
+using AutoMapper;
+using codemazepractice.application.Services;
 using codemazepractice.domain;
+using codemazepractice.domain.DTO;
 using codemazepractice.persistence.Contracts;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
@@ -9,22 +13,31 @@ namespace api.Controllers;
 public class OwnerController: ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
-    
-    public OwnerController(IUnitOfWork unitOfWork)
+    private readonly IBlobManager _blobManager;
+    private readonly IConfiguration _configuration;
+    private readonly IMapper _mapper;
+
+    public OwnerController(IUnitOfWork unitOfWork, IBlobManager blobManager, IConfiguration configuration, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _blobManager = blobManager;
+        _configuration = configuration;
+        _mapper = mapper;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllOwners()
     {
-        return Ok(await _unitOfWork.OwnerRepository.FindAllAsync());
+        var owners = await _unitOfWork.OwnerRepository.FindAllAsync();
+        var ownersDto = _mapper.Map<List<OwnerDto>>(owners);
+
+        return Ok(ownersDto);
     }
 
     [HttpGet("accounts")]
     public async Task<IActionResult> GetAccountsBasedOnType()
     {
-        return Ok(await _unitOfWork.OwnerRepository.GetAllOwnersWithAssociatedAccounts());
+        return Ok(await _unitOfWork.OwnerRepository.GetAllOwnersWithAssociations());
     }
 
     [HttpGet("{id}")]
@@ -73,4 +86,36 @@ public class OwnerController: ControllerBase
             return Content("Record not found");
         }
     }
+
+    [HttpPut("image")]
+    public async Task<IActionResult> UpdateImage(Guid ownerID, IFormFile formFile)
+    {
+        string blobServerUrl = $"https://{_configuration["AzureStorageAccountName"]}.blob.core.windows.net";
+        bool IfExists = await _unitOfWork.OwnerRepository.ExistsAsync(ownerID);
+        if(IfExists)
+        {
+            Owner? owner = await _unitOfWork.OwnerRepository.FindOneAsync(ownerID);
+            var result = await _blobManager.UploadBlob("blobcontainer", formFile, ownerID);
+            if(result != null)
+            {
+                var ownerDto = await _unitOfWork.OwnerRepository.GetOwnerWithAssociations(ownerID);
+                return Ok(ownerDto);
+            }
+            else
+            {
+                return StatusCode(500, "Failed to upload");
+            }
+        }
+        else
+        {
+            return NotFound("Owner not found");
+        }
+    }
+
+    // [HttpPatch]
+    // public async Task<IActionResult> UpdateImage([FromBody] JsonPatchDocument<Owner> patchDoc)
+    // {
+    //     Console.WriteLine("Test");
+    //     return Ok();
+    // }
 }

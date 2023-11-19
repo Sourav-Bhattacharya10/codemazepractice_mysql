@@ -12,9 +12,13 @@ public class UnitOfWork : IUnitOfWork
 
     private OwnerRepository _ownerRepository = default!;
 
+    private ImageInfoRepository _imageInfoRepository = default!;
+
     public AccountRepository AccountRepository => _accountRepository ??= new AccountRepository(_context);
 
     public OwnerRepository OwnerRepository => _ownerRepository ??= new OwnerRepository(_context, _mapper);
+
+    public ImageInfoRepository ImageInfoRepository => _imageInfoRepository ??= new ImageInfoRepository(_context);
 
     public UnitOfWork(CodeMazeContext context, IMapper mapper)
     {

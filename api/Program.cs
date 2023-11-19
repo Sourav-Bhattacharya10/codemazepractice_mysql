@@ -1,11 +1,27 @@
+using Azure.Identity;
 using codemazepractice.persistence;
+using codemazepractice.application;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var configuration = builder.Configuration;
 
-builder.Services.AddControllers();
+builder.Services.AddAzureClients(options =>
+{
+    options.AddBlobServiceClient(new Uri($"https://{configuration["AzureStorageAccountName"]}.blob.core.windows.net"));
+    options.UseCredential(new DefaultAzureCredential());
+});
+
+builder.Services.AddControllers(options =>
+{
+    options.InputFormatters.Insert(0, MyJsonPatchInputFormatter.GetJsonPatchInputFormatter());
+});
+
 builder.Services.AddPersistenceLayer(builder.Configuration);
+
+builder.Services.AddApplicationLayer();
 
 builder.Services.AddCors(options =>
 {

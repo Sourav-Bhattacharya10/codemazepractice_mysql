@@ -17,6 +17,12 @@ public class CodeMazeContext: DbContext
         builder.Properties<DateOnly>().HaveConversion<DateOnlyConverter>();
     }
 
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<ImageInfo>().HasKey(ii => ii.ImageID); // Fluent API to define Primary Key
+    }
+
     public DbSet<Owner> Owner { get; set; }
     public DbSet<Account> Account { get; set; }
+    public DbSet<ImageInfo> ImageInfo { get; set; }
 }

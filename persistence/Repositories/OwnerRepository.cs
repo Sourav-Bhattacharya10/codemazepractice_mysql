@@ -29,14 +29,34 @@ public class OwnerRepository: Repository<Owner>, IOwnerRepository
         return entity != null;
     }
 
-    public async Task<IEnumerable<OwnerDto>> GetAllOwnersWithAssociatedAccounts()
+    public async Task<IEnumerable<OwnerDto>> GetAllOwnersWithAssociations()
     {
         var accountSet = _context.Account;
         var ownerSet = _context.Owner;
+        var imageInfoSet = _context.ImageInfo;
 
-        var owners = await ownerSet.Select(owner => new Owner { OwnerID = owner.OwnerID, Name = owner.Name, DateOfBirth = owner.DateOfBirth, Address = owner.Address, Accounts = accountSet.Where(ac => ac.OwnerID == owner.OwnerID).ToList() }).ToListAsync();
+        var owners = await ownerSet.Select(owner => new Owner { OwnerID = owner.OwnerID, Name = owner.Name, DateOfBirth = owner.DateOfBirth, Address = owner.Address, Accounts = accountSet.Where(ac => ac.OwnerID == owner.OwnerID).ToList(), ImageInfo = imageInfoSet.FirstOrDefault(imgInfo => imgInfo.OwnerID == owner.OwnerID) }).ToListAsync();
         var ownerDtos = _mapper.Map<List<OwnerDto>>(owners);
 
         return ownerDtos;
-    } 
+    }
+
+    public async Task<OwnerDto> GetOwnerWithAssociations(Guid ownerID)
+    {
+        var accountSet = _context.Account;
+        var ownerSet = _context.Owner;
+        var imageInfoSet = _context.ImageInfo;
+
+        var owner = await ownerSet.FirstOrDefaultAsync(ownerItem => ownerItem.OwnerID == ownerID);
+        
+        if(owner != null)
+        {
+            owner.Accounts = await accountSet.Where(ac => ac.OwnerID == owner.OwnerID).ToListAsync();
+            owner.ImageInfo = await imageInfoSet.FirstOrDefaultAsync(ii => ii.OwnerID == ownerID);
+        }
+        
+        var ownerDto = _mapper.Map<OwnerDto>(owner);
+
+        return ownerDto;
+    }
 }

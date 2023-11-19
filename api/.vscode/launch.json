@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             "launchSettingsProfile": "http",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/net7.0/api.dll",
+            "program": "${workspaceFolder}/bin/Debug/net8.0/api.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -21,7 +21,10 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "AZURE_TENANT_ID": "",
+                "AZURE_CLIENT_ID": "",
+                "AZURE_CLIENT_SECRET": ""
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"

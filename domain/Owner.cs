@@ -6,5 +6,6 @@ public class Owner
     public string Name { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }
     public string Address { get; set; } = string.Empty;
+    public ImageInfo? ImageInfo { get; set; } = default!;
     public IEnumerable<Account> Accounts { get; set; } = default!;
 }

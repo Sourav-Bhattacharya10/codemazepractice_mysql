@@ -10,5 +10,6 @@ public class MappingProfile: Profile
     {
         CreateMap<Account, AccountDto>().ReverseMap();
         CreateMap<Owner, OwnerDto>().ReverseMap();
+        CreateMap<ImageInfo, ImageInfoDto>().ReverseMap();
     }
 }

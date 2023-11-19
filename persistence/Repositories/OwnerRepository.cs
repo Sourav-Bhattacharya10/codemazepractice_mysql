@@ -1,6 +1,7 @@
 using AutoMapper;
 using codemazepractice.domain;
 using codemazepractice.domain.DTO;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 
 namespace codemazepractice.persistence.Repositories;
@@ -55,6 +56,32 @@ public class OwnerRepository: Repository<Owner>, IOwnerRepository
             owner.ImageInfo = await imageInfoSet.FirstOrDefaultAsync(ii => ii.OwnerID == ownerID);
         }
         
+        var ownerDto = _mapper.Map<OwnerDto>(owner);
+
+        return ownerDto;
+    }
+
+    public async Task<OwnerDto?> PatchOwnerProperties(Guid ownerID, JsonPatchDocument<Owner> ownerModel)
+    {
+        Owner owner = default!;
+
+        try
+        {
+            bool IfExists = await ExistsAsync(ownerID);
+
+            if(IfExists)
+            {
+                owner = await FindOneAsync(ownerID);
+                ownerModel.ApplyTo(owner);
+                _context.Owner.Update(owner);
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            owner = null;
+        }
+
         var ownerDto = _mapper.Map<OwnerDto>(owner);
 
         return ownerDto;

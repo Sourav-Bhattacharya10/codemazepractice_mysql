@@ -14,10 +14,7 @@ builder.Services.AddAzureClients(options =>
     options.UseCredential(new DefaultAzureCredential());
 });
 
-builder.Services.AddControllers(options =>
-{
-    options.InputFormatters.Insert(0, MyJsonPatchInputFormatter.GetJsonPatchInputFormatter());
-});
+builder.Services.AddControllers().AddNewtonsoftJson();
 
 builder.Services.AddPersistenceLayer(builder.Configuration);
 

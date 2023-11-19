@@ -112,10 +112,11 @@ public class OwnerController: ControllerBase
         }
     }
 
-    // [HttpPatch]
-    // public async Task<IActionResult> UpdateImage([FromBody] JsonPatchDocument<Owner> patchDoc)
-    // {
-    //     Console.WriteLine("Test");
-    //     return Ok();
-    // }
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PathchOwner(Guid id, [FromBody] JsonPatchDocument<Owner> ownerModel)
+    {
+        var ownerDto = await _unitOfWork.OwnerRepository.PatchOwnerProperties(id, ownerModel);
+
+        return Ok(ownerDto);
+    }
 }

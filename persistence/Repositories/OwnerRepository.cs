@@ -3,23 +3,30 @@ using codemazepractice.domain;
 using codemazepractice.domain.DTO;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace codemazepractice.persistence.Repositories;
 
 public class OwnerRepository: Repository<Owner>, IOwnerRepository
 {
     private readonly IMapper _mapper;
+    private readonly IMemoryCache _memoryCache;
     private readonly CodeMazeContext _context;
 
-    public OwnerRepository(CodeMazeContext context, IMapper mapper): base(context)
+    public OwnerRepository(CodeMazeContext context, IMapper mapper, IMemoryCache memoryCache): base(context)
     {
         _context = context;
         _mapper = mapper;
+        _memoryCache = memoryCache;
     }
 
     public async Task<Owner?> FindOneAsync(Guid id)
     {
-        return await _context.Owner.AsNoTracking().FirstOrDefaultAsync(entity => entity.OwnerID == id);
+        return await _memoryCache.GetOrCreateAsync<Owner?>($"memory-cache-owner-{id}", cacheEntry =>
+        {
+            cacheEntry.SlidingExpiration = TimeSpan.FromMinutes(2);
+            return Task.FromResult(_context.Owner.AsNoTracking().FirstOrDefault(entity => entity.OwnerID == id));
+        });
     }
 
     

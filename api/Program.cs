@@ -16,6 +16,8 @@ builder.Services.AddAzureClients(options =>
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddPersistenceLayer(builder.Configuration);
 
 builder.Services.AddApplicationLayer();
